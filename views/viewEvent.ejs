@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Panel | Event Details</title>
+    <link href="/css/output.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* h1,
+        h2,
+        h3,
+        h4,
+        .serif-font {
+            font-family: 'Playfair Display', serif;
+        } */
+    </style>
+</head>
+
+<body class="bg-[#faf7f6] text-slate-800">
+    <div class="flex h-screen overflow-hidden selection:bg-[#FF5E62] selection:text-white">
+        <%- include('partials/sidebar') %>
+
+            <div class="flex flex-col flex-1 overflow-x-hidden overflow-y-auto relative">
+                <%- include('partials/header') %>
+
+                    <main class="w-full max-w-[1920px] mx-auto p-4 md:p-6 lg:p-8">
+
+                        <!-- Navigation -->
+                        <div class="flex items-center justify-between mb-8">
+                            <button onclick="history.back()"
+                                class="group flex items-center text-sm font-semibold text-slate-500 hover:text-[#FF5E62] transition-colors cursor-pointer">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center mr-2 group-hover:border-[#FF5E62] group-hover:bg-[#FF5E62] group-hover:text-white transition-all shadow-sm">
+                                    <i class="fas fa-arrow-left"></i>
+                                </div>
+                                Back
+                            </button>
+                        </div>
+
+                        <div class="max-w-5xl mx-auto">
+                            <!-- Main Event Card -->
+                            <div
+                                class="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden relative">
+
+                                <!-- Hero Section with Cover Photo -->
+                                <div class="relative w-full h-64 md:h-96 bg-slate-200">
+                                    <% if (user.coverPhotoPath) { %>
+                                        <img src="<%= user.coverPhotoPath %>" alt="Event Cover"
+                                            class="w-full h-full object-cover">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent">
+                                        </div>
+                                        <% } else { %>
+                                            <div
+                                                class="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#F3C7BF] to-[#FF5E62]">
+                                                <i class="fas fa-glass-cheers text-6xl text-white/50"></i>
+                                            </div>
+                                            <% } %>
+
+                                                <!-- Status Badge -->
+                                                <div class="absolute top-6 right-6">
+                                                    <% if (user.isPublished) { %>
+                                                        <span
+                                                            class="px-4 py-2 rounded-xl bg-emerald-500/90 backdrop-blur-md text-white text-xs font-bold uppercase shadow-lg tracking-wider border border-white/20">
+                                                            <i class="fas fa-check-circle mr-1"></i> Published
+                                                        </span>
+                                                        <% } else { %>
+                                                            <span
+                                                                class="px-4 py-2 rounded-xl bg-amber-500/90 backdrop-blur-md text-white text-xs font-bold uppercase shadow-lg tracking-wider border border-white/20">
+                                                                <i class="fas fa-pen mr-1"></i> Draft
+                                                            </span>
+                                                            <% } %>
+                                                </div>
+                                </div>
+
+                                <!-- Content Section -->
+                                <div class="relative px-8 md:px-12 py-10 -mt-20">
+                                    <!-- Event Info Card intersecting hero -->
+                                    <div
+                                        class="bg-white/90 backdrop-blur-xl border border-white/50 rounded-[2rem] p-8 shadow-xl">
+
+                                        <div
+                                            class="flex flex-col md:flex-row gap-8 items-start justify-between border-b border-slate-100 pb-8 mb-8">
+                                            <div>
+                                                <span
+                                                    class="inline-block px-3 py-1 bg-[#F3C7BF]/20 text-[#FF5E62] rounded-lg text-xs font-bold uppercase tracking-wider mb-3">
+                                                    Wedding Event
+                                                </span>
+                                                <h1
+                                                    class="text-4xl md:text-5xl font-bold text-slate-900 font-serif mb-2">
+                                                    <%= user.brideName || 'Bride' %> <span
+                                                            class="text-[#FF5E62]">&amp;</span>
+                                                        <%= user.groomName || 'Groom' %>
+                                                </h1>
+                                                <p class="text-slate-500 text-lg">
+                                                    Celebration Details
+                                                </p>
+                                            </div>
+
+                                            <div class="flex flex-col gap-3 min-w-[200px]">
+                                                <div
+                                                    class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                                                    <div
+                                                        class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-[#FF5E62] shadow-sm">
+                                                        <i class="far fa-calendar-alt text-lg"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p
+                                                            class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
+                                                            Date</p>
+                                                        <p class="text-sm font-bold text-slate-800">
+                                                            <%= user.weddingDate ? new Date(user.weddingDate._seconds ?
+                                                                user.weddingDate._seconds * 1000 :
+                                                                user.weddingDate).toLocaleDateString('en-US', {
+                                                                weekday: 'long' , year: 'numeric' , month: 'long' ,
+                                                                day: 'numeric' }) : 'Date TBD' %>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                            <!-- Left Column: Details -->
+                                            <div class="md:col-span-2 space-y-8">
+                                                <div>
+                                                    <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center">
+                                                        <i class="fas fa-align-left text-[#FF5E62] mr-3"></i>
+                                                        Description
+                                                    </h3>
+                                                    <div
+                                                        class="prose prose-slate max-w-none text-slate-600 leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                                                        <%= user.description
+                                                            || 'No description provided for this event.' %>
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center">
+                                                        <i class="fas fa-map-marker-alt text-[#FF5E62] mr-3"></i> Venue
+                                                        Location
+                                                    </h3>
+                                                    <div
+                                                        class="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex items-start gap-4">
+                                                        <div class="p-3 bg-white rounded-xl text-[#FF5E62] shadow-sm">
+                                                            <i class="fas fa-location-dot text-xl"></i>
+                                                        </div>
+                                                        <div>
+                                                            <h4 class="font-bold text-slate-800 text-lg mb-1">Venue</h4>
+                                                            <p class="text-slate-600">
+                                                                <%= user.venue || 'No venue specified' %>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Right Column: Meta Info -->
+                                            <div class="space-y-6">
+                                                <div
+                                                    class="bg-slate-900 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                                                    <div
+                                                        class="absolute top-0 right-0 w-32 h-32 bg-[#FF5E62] rounded-full blur-[60px] opacity-20 -mr-10 -mt-10">
+                                                    </div>
+
+                                                    <h3
+                                                        class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-6 relative z-10">
+                                                        Event Meta</h3>
+
+                                                    <div class="space-y-4 relative z-10">
+                                                        <div
+                                                            class="flex justify-between items-center py-2 border-b border-slate-800">
+                                                            <span class="text-slate-400 text-sm">Event ID</span>
+                                                            <span
+                                                                class="font-mono text-xs text-white bg-slate-800 px-2 py-1 rounded">
+                                                                <%= user.id ? user.id.slice(0,8) + '...' : 'N/A' %>
+                                                            </span>
+                                                        </div>
+                                                        <div
+                                                            class="flex justify-between items-center py-2 border-b border-slate-800">
+                                                            <span class="text-slate-400 text-sm">Created</span>
+                                                            <span class="text-sm font-medium">
+                                                                <%= user.createdAt ? new Date(user.createdAt._seconds ?
+                                                                    user.createdAt._seconds * 1000 :
+                                                                    user.createdAt).toLocaleDateString() : 'N/A' %>
+                                                            </span>
+                                                        </div>
+                                                        <div class="flex justify-between items-center py-2">
+                                                            <span class="text-slate-400 text-sm">Last Update</span>
+                                                            <span class="text-sm font-medium">
+                                                                <%= user.updatedAt ? new Date(user.updatedAt._seconds ?
+                                                                    user.updatedAt._seconds * 1000 :
+                                                                    user.updatedAt).toLocaleDateString() : 'N/A' %>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tickets Section -->
+                                        <div class="mt-12 border-t border-slate-100 pt-10">
+                                            <div class="flex items-center justify-between mb-6">
+                                                <h3
+                                                    class="text-2xl font-bold text-slate-900 font-serif flex items-center">
+                                                    <i class="fas fa-ticket-alt text-[#FF5E62] mr-3"></i> Event Tickets
+                                                </h3>
+                                                <span
+                                                    class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold">
+                                                    <%= user.tickets ? user.tickets.length : 0 %> Types
+                                                </span>
+                                            </div>
+
+                                            <% if (!user.tickets || user.tickets.length===0) { %>
+                                                <div
+                                                    class="bg-slate-50 border border-slate-100 rounded-2xl p-10 text-center">
+                                                    <div
+                                                        class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm text-slate-300">
+                                                        <i class="fas fa-ticket-alt text-2xl"></i>
+                                                    </div>
+                                                    <p class="text-slate-500 font-medium">No tickets created for this
+                                                        event yet.</p>
+                                                </div>
+                                                <% } else { %>
+                                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                        <% user.tickets.forEach(ticket=> { %>
+                                                            <div
+                                                                class="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+                                                                <div
+                                                                    class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#F3C7BF]/20 to-[#FF5E62]/20 rounded-bl-[4rem] -mr-4 -mt-4 transition-transform group-hover:scale-110">
+                                                                </div>
+
+                                                                <div class="relative z-10">
+                                                                    <h4 class="text-lg font-bold text-slate-800 mb-1">
+                                                                        <%= ticket.title || ticket.name
+                                                                            || 'Standard Ticket' %>
+                                                                    </h4>
+                                                                    <p
+                                                                        class="text-xs text-slate-400 uppercase tracking-widest font-bold mb-4">
+                                                                        Ticket Pass</p>
+
+                                                                    <p
+                                                                        class="text-3xl font-bold text-[#FF5E62] mb-4 font-serif">
+                                                                        <%= (ticket.price && ticket.price> 0) ? '$' +
+                                                                            ticket.price : 'Free' %>
+                                                                    </p>
+
+                                                                    <div
+                                                                        class="space-y-3 pt-3 border-t border-slate-50 text-sm">
+                                                                        <div class="flex items-center justify-between">
+                                                                            <span class="text-slate-500">Total
+                                                                                Qty</span>
+                                                                            <span
+                                                                                class="font-bold text-slate-700 bg-slate-50 px-2 py-0.5 rounded">
+                                                                                <%= ticket.quantity || 'Unlimited' %>
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="flex items-center justify-between">
+                                                                            <span class="text-slate-500">Total
+                                                                                Sold</span>
+                                                                            <span
+                                                                                class="font-bold text-slate-700 bg-slate-50 px-2 py-0.5 rounded">
+                                                                                <%= ticket.soldCount || 0 %>
+                                                                            </span>
+                                                                        </div>
+                                                                        <% if (ticket.description) { %>
+                                                                            <p
+                                                                                class="text-xs text-slate-400 leading-relaxed line-clamp-2">
+                                                                                <%= ticket.description %>
+                                                                            </p>
+                                                                            <% } %>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <% }); %>
+                                                    </div>
+                                                    <% } %>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </main>
+            </div>
+    </div>
+
+    <%- include('partials/script') %>
+</body>
+
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wedding App | Users</title>
+  <link rel="stylesheet" href="/css/output.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <%- include('partials/sidebar') %>
+
+      <div class="relative flex flex-col flex-1 overflow-x-hidden overflow-y-auto">
+        <%- include('partials/header') %>
+
+          <main class="flex-1 p-6">
+            <div class="max-w-7xl mx-auto">
+              <!-- Header Card -->
+              <div class="bg-gradient-to-r from-[#F3C7BF] to-[#FF5E62] rounded-2xl shadow-lg mb-8 overflow-hidden">
+                <div class="px-8 py-6">
+                  <div class="flex flex-col md:flex-row md:items-center justify-between">
+                    <div class="mb-4 md:mb-0">
+                      <h2 class="text-3xl font-bold text-white mb-2">Couples Management</h2>
+                      <p class="text-white/90 text-sm">
+                        Manage all couples
+                      </p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                      <div class="bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/20">
+                        <p class="text-sm text-white font-medium">
+                          <i class="fas fa-users mr-2"></i>
+                          <span class="font-bold">
+                            <%= users.length %>
+                          </span> Total Users
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Main Content Card -->
+              <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                <!-- Filters and Search -->
+                <div class="p-6 border-b border-gray-200">
+                  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="relative">
+                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                      </div>
+                      <input type="text" placeholder="Search users..."
+                        class="pl-10 w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#FF5E62] focus:border-transparent transition-all duration-200"
+                        id="searchInput">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Users Table -->
+                <div class="p-6">
+                  <% if (users.length===0) { %>
+                    <div class="text-center py-12">
+                      <div class="mx-auto h-24 w-24 text-gray-400 mb-6">
+                        <i class="fas fa-users text-5xl"></i>
+                      </div>
+                      <h3 class="text-xl font-semibold text-gray-900 mb-2">No users found</h3>
+                      <p class="text-gray-500">
+                        <%= admin.role==='company' ? 'No employees in your company yet' : 'No users found in the system'
+                          %>
+                      </p>
+                    </div>
+                    <% } else { %>
+                      <% /* Pagination Logic */ const itemsPerPage=10; const currentPage=(typeof query !=='undefined' &&
+                        query.page) ? parseInt(query.page) : 1; const startIndex=(currentPage - 1) * itemsPerPage; const
+                        endIndex=Math.min(startIndex + itemsPerPage, users.length); const
+                        paginatedItems=users.slice(startIndex, endIndex); const totalPages=Math.ceil(users.length /
+                        itemsPerPage); %>
+
+                        <!-- Table Container -->
+                        <div class="overflow-hidden rounded-xl border border-gray-200">
+                          <table class="w-full">
+                            <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+                              <tr>
+                                <th
+                                  class="px-4 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider w-16">
+                                  #
+                                </th>
+                                <th
+                                  class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                  Couple Profile
+                                </th>
+                                <th
+                                  class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                  Wedding Details
+                                </th>
+                                <th
+                                  class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                  Story
+                                </th>
+                                <th
+                                  class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                  Timestamps
+                                </th>
+                                <th
+                                  class="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                  Actions
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                              <% paginatedItems.forEach((user, index)=> { %>
+                                <tr class="hover:bg-gray-50/50 transition-colors duration-200 user-row">
+                                  <!-- Index Column -->
+                                  <td class="px-4 py-4 text-center">
+                                    <span class="text-sm font-medium text-gray-500">
+                                      <%= startIndex + index + 1 %>
+                                    </span>
+                                  </td>
+
+                                  <!-- Couple Profile Column -->
+                                  <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                      <% if (user.profileImagePath) { %>
+                                        <img src="<%= user.profileImagePath %>" alt="Profile"
+                                          class="h-12 w-12 flex-shrink-0 rounded-full object-cover border-2 border-[#F3C7BF]">
+                                        <% } else { %>
+                                          <div
+                                            class="h-12 w-12 flex-shrink-0 rounded-full bg-gradient-to-r from-[#F3C7BF] to-[#FF5E62] flex items-center justify-center text-white font-bold shadow-sm">
+                                            <%= user.partner1Name ? user.partner1Name.charAt(0).toUpperCase() : "C" %>
+                                          </div>
+                                          <% } %>
+                                            <div class="ml-4">
+                                              <div class="text-sm font-bold text-gray-900">
+                                                <%= user.partner1Name || 'Partner 1' %> & <%= user.partner2Name
+                                                    || 'Partner 2' %>
+                                              </div>
+                                              <div class="flex items-center mt-1 text-xs text-gray-500">
+                                                <i class="fas fa-envelope mr-1 text-gray-400"></i>
+                                                <%= user.email || 'No email' %>
+                                              </div>
+                                              <div class="flex items-center mt-1">
+                                                <span
+                                                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700">
+                                                  <%= user.userType || 'couple' %>
+                                                </span>
+                                              </div>
+                                            </div>
+                                    </div>
+                                  </td>
+
+                                  <!-- Wedding Details Column -->
+                                  <td class="px-6 py-4">
+                                    <div class="space-y-1">
+                                      <div class="flex items-center text-sm text-gray-900">
+                                        <i class="fas fa-calendar-heart w-5 text-[#FF5E62]"></i>
+                                        <span>
+                                          <%= user.weddingDate ? new Date(user.weddingDate).toLocaleDateString()
+                                            : 'Date not set' %>
+                                        </span>
+                                      </div>
+                                      <div class="flex items-center text-sm text-gray-600">
+                                        <i class="fas fa-map-marker-alt w-5 text-gray-400"></i>
+                                        <span>
+                                          <%= user.venue || 'Venue not set' %>
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </td>
+
+                                  <!-- Story Column -->
+                                  <td class="px-6 py-4">
+                                    <div class="max-w-xs">
+                                      <p class="text-sm text-gray-600 line-clamp-2" title="<%= user.story %>">
+                                        <%= user.story || 'No story shared yet.' %>
+                                      </p>
+                                    </div>
+                                  </td>
+
+                                  <!-- Timestamps Column -->
+                                  <td class="px-6 py-4">
+                                    <div class="text-xs text-gray-500 space-y-1">
+                                      <div>
+                                        <span class="font-medium text-gray-700">Joined:</span><br>
+                                        <%= user.createdAt ? new Date(user.createdAt._seconds *
+                                          1000).toLocaleDateString() : 'N/A' %>
+                                      </div>
+                                      <div>
+                                        <span class="font-medium text-gray-700">Updated:</span><br>
+                                        <%= user.updatedAt ? new Date(user.updatedAt._seconds *
+                                          1000).toLocaleDateString() : 'N/A' %>
+                                      </div>
+                                    </div>
+                                  </td>
+
+                                  <!-- Actions Column -->
+                                  <td class="px-6 py-4 text-center">
+                                    <div class="flex items-center justify-center space-x-2">
+                                      <!-- View Button -->
+                                      <a href="/users/view/<%= user.id %>"
+                                        class="inline-flex items-center p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors duration-200"
+                                        title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                      </a>
+
+                                      <!-- Delete Button -->
+                                      <button
+                                        onclick="confirmDelete('<%= user.id %>', '<%= user.partner1Name %> & <%= user.partner2Name %>')"
+                                        class="inline-flex items-center p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-colors duration-200"
+                                        title="Delete Couple">
+                                        <i class="fas fa-trash"></i>
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+
+                                <!-- Hidden Forms -->
+                                <form action="/users/delete/<%= user.id %>" method="POST" class="hidden"
+                                  id="deleteForm-<%= user.id %>"></form>
+                                <% }); %>
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="mt-8">
+                          <div class="flex flex-col md:flex-row items-center justify-between">
+                            <div class="text-sm text-gray-600 mb-4 md:mb-0">
+                              <p>
+                                Showing <span class="font-semibold text-gray-800">
+                                  <%= startIndex + 1 %>
+                                </span> to <span class="font-semibold text-gray-800">
+                                  <%= endIndex %>
+                                </span> of <span class="font-semibold text-gray-800">
+                                  <%= users.length %>
+                                </span> users
+                              </p>
+                            </div>
+
+                            <div class="flex items-center space-x-2">
+                              <!-- Previous Button -->
+                              <% if (currentPage> 1) { %>
+                                <a href="/users?page=<%= currentPage - 1 %>"
+                                  class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:shadow-sm transition-all duration-200">
+                                  <i class="fas fa-chevron-left mr-2"></i>
+                                  Previous
+                                </a>
+                                <% } %>
+
+                                  <!-- Page Numbers -->
+                                  <% const maxVisiblePages=5; let startPage=Math.max(1, currentPage -
+                                    Math.floor(maxVisiblePages / 2)); let endPage=Math.min(totalPages, startPage +
+                                    maxVisiblePages - 1); if (endPage - startPage + 1 < maxVisiblePages) {
+                                    startPage=Math.max(1, endPage - maxVisiblePages + 1); } for (let i=startPage; i
+                                    <=endPage; i++) { %>
+                                    <a href="/users?page=<%= i %>"
+                                      class="inline-flex items-center justify-center h-10 w-10 rounded-lg text-sm font-medium transition-all duration-200 <%= i === currentPage ? 'bg-gradient-to-r from-[#F3C7BF] to-[#FF5E62] text-white shadow-md' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:shadow-sm' %>">
+                                      <%= i %>
+                                    </a>
+                                    <% } %>
+
+                                      <!-- Next Button -->
+                                      <% if (currentPage < totalPages) { %>
+                                        <a href="/users?page=<%= currentPage + 1 %>"
+                                          class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:shadow-sm transition-all duration-200">
+                                          Next
+                                          <i class="fas fa-chevron-right ml-2"></i>
+                                        </a>
+                                        <% } %>
+                            </div>
+                          </div>
+                        </div>
+                        <% } %>
+                </div>
+
+                <!-- Stats Summary -->
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-gray-200">
+                      <p class="text-sm text-gray-500 mb-1">Total Couples</p>
+                      <p class="text-2xl font-bold text-gray-900">
+                        <%= users.length %>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
+      </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // Filter users
+    function filterUsers() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const userRows = document.querySelectorAll('.user-row');
+
+      userRows.forEach(row => {
+        let show = true;
+        // Search filter
+        if (searchTerm) {
+          const text = row.textContent.toLowerCase();
+          if (!text.includes(searchTerm)) {
+            show = false;
+          }
+        }
+
+        if (show) {
+          row.style.display = 'table-row';
+          setTimeout(() => {
+            row.style.opacity = '1';
+          }, 10);
+        } else {
+          row.style.opacity = '0';
+          setTimeout(() => {
+            row.style.display = 'none';
+          }, 300);
+        }
+      });
+    }
+
+    // Initialize filters
+    document.addEventListener('DOMContentLoaded', function () {
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) searchInput.addEventListener('input', filterUsers);
+    });
+
+    // Delete user confirmation
+    function confirmDelete(userId, userName) {
+      Swal.fire({
+        title: `Delete ${userName}?`,
+        html: `<p class="text-gray-600 mb-4">Are you sure you want to delete this couple?</p>
+               <p class="text-sm text-gray-500">This action cannot be undone.</p>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e3342f',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, delete it',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true,
+        customClass: {
+          popup: 'rounded-2xl',
+          confirmButton: 'px-6 py-2 rounded-lg font-semibold',
+          cancelButton: 'px-6 py-2 rounded-lg font-semibold'
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          document.getElementById(`deleteForm-${userId}`).submit();
+        }
+      });
+    }
+  </script>
+
+  <%- include('partials/script') %>
+</body>
+
+</html>

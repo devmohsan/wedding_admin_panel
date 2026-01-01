@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lezzetli App | <%= mode === 'edit' ? 'Edit' : 'Add' %> Company</title>
+  <link rel="stylesheet" href="/css/output.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <%- include('partials/sidebar') %>
+
+    <div class="relative flex flex-col flex-1 overflow-x-hidden overflow-y-auto">
+      <%- include('partials/header') %>
+
+      <main class="flex-1 p-6">
+        <div class="max-w-4xl mx-auto">
+          <!-- Form Card -->
+          <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-[#2B588D] to-[#5FA8A1] px-6 py-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h2 class="text-2xl font-bold text-white">
+                    <%= mode === 'edit' ? 'Edit Company' : 'Add New Company' %>
+                  </h2>
+                  <p class="text-white/90 text-sm mt-1">
+                    <%= mode === 'edit' ? 'Update company details' : 'Register a new company to the system' %>
+                  </p>
+                </div>
+                <div class="flex items-center space-x-2">
+                  <span class="px-3 py-1 bg-white/20 rounded-full text-xs font-medium text-white">
+                    <%= mode === 'edit' ? 'Edit Mode' : 'Create Mode' %>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Content -->
+            <div class="p-6">
+              <form method="POST" action="<%= mode === 'edit' ? '/companies/edit/' + data.id : '/companies/add' %>" enctype="multipart/form-data">
+                <!-- Hidden ID Field -->
+                <% if (mode === 'edit') { %>
+                <input type="hidden" name="id" value="<%= data.id || '' %>" />
+                <% } %>
+
+                <!-- Hidden Role Field -->
+                <input type="hidden" name="role" value="company" />
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  
+                  <!-- Left Column -->
+                  <div class="space-y-6">
+                    <!-- Company Name -->
+                    <div>
+                      <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Company Name <span class="text-red-500">*</span>
+                      </label>
+                      <input type="text" name="name" value="<%= data.name || '' %>" required 
+                             placeholder="e.g., Codesteem Solutions"
+                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2B588D] focus:border-transparent transition-all duration-200">
+                    </div>
+
+                    <!-- Company Code -->
+                    <div>
+                      <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Company Code <span class="text-red-500">*</span>
+                      </label>
+                      <input type="text" name="company_code" value="<%= data.company_code || '' %>" required 
+                             placeholder="e.g., CMP-23"
+                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2B588D] focus:border-transparent transition-all duration-200">
+                      <p class="text-xs text-gray-500 mt-1">Unique identifier for the company</p>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                      <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Email Address <span class="text-red-500">*</span>
+                      </label>
+                      <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <i class="fas fa-envelope text-gray-400"></i>
+                        </div>
+                        <input type="email" name="email" value="<%= data.email || '' %>" required 
+                               placeholder="company@example.com"
+                               class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#66BE6E] focus:border-transparent transition-all duration-200">
+                      </div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div>
+                      <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Phone Number
+                      </label>
+                      <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <i class="fas fa-phone text-gray-400"></i>
+                        </div>
+                        <input type="tel" name="phone" value="<%= data.phone || '' %>"
+                               placeholder="+92483081342"
+                               class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2B588D] focus:border-transparent transition-all duration-200">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Right Column -->
+                  <div class="space-y-6">
+                    <!-- Logo Upload -->
+                    <div>
+                      <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Company Logo
+                      </label>
+                      <div class="flex items-center space-x-4">
+                        <% if (mode === 'edit' && data.logo) { %>
+                        <div class="flex-shrink-0">
+                          <img src="<%= data.logo %>" alt="Current Logo" class="h-16 w-16 rounded-lg object-cover border border-gray-300">
+                        </div>
+                        <% } %>
+                        <div class="flex-1">
+                          <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-[#2B588D] transition-colors">
+                            <input type="file" name="logo" id="logoInput" accept="image/*" 
+                                   class="hidden">
+                            <label for="logoInput" class="cursor-pointer block">
+                              <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
+                              <p class="text-sm text-gray-600">
+                                <% if (mode === 'edit' && data.logo) { %>
+                                Change logo
+                                <% } else { %>
+                                Upload logo
+                                <% } %>
+                              </p>
+                              <p class="text-xs text-gray-500 mt-1">PNG, JPG up to 2MB</p>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Password Section -->
+                    <div>
+                      <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Account Password
+                      </label>
+                      <div class="space-y-3">
+                        <% if (mode === 'edit') { %>
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                          <div class="flex items-center">
+                            <i class="fas fa-key text-yellow-500 mr-2"></i>
+                            <div>
+                              <p class="text-sm font-medium text-yellow-800">Password is auto-generated</p>
+                              <p class="text-xs text-yellow-600 mt-1">Click below to generate a new password</p>
+                            </div>
+                          </div>
+                        </div>
+                        <% } %>
+                        
+                        <div class="flex items-center space-x-3">
+                          <div class="flex-1">
+                            <input type="text" id="passwordDisplay" 
+                                   value="<%= mode === 'edit' ? '********' : (data.password || '') %>"
+                                   readonly
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm">
+                          </div>
+                          <button type="button" onclick="generateNewPassword()"
+                                  class="px-4 py-3 bg-[#2B588D] text-white rounded-lg hover:bg-[#5FA8A1] transition-colors duration-200 whitespace-nowrap">
+                            <i class="fas fa-redo mr-2"></i> Shuffle
+                          </button>
+                        </div>
+                        <input type="hidden" name="password" id="passwordInput" value="<%= data.password || '' %>">
+                      </div>
+                    </div>
+
+                    <!-- Status Toggles -->
+                    <div class="space-y-4">
+                      <!-- Active Status -->
+                      <label class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors <%= data.is_active ? 'border-[#66BE6E] bg-green-50' : 'border-gray-300' %>">
+                        <div class="flex items-center space-x-3">
+                          <input type="checkbox" name="is_active" value="true" <%= data.is_active ? 'checked' : '' %>
+                                 class="h-4 w-4 text-[#2B588D] rounded focus:ring-[#2B588D]">
+                          <div>
+                            <div class="font-medium text-gray-800">Active Company</div>
+                            <div class="text-sm text-gray-500">Company can login and use the system</div>
+                          </div>
+                        </div>
+                        <div class="px-2 py-1 text-xs font-medium rounded-full <%= data.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
+                          <%= data.is_active ? 'Active' : 'Inactive' %>
+                        </div>
+                      </label>
+
+                      <!-- Approval Status -->
+                      <label class="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors <%= data.is_approved ? 'border-[#66BE6E] bg-green-50' : 'border-gray-300' %>">
+                        <div class="flex items-center space-x-3">
+                          <input type="checkbox" name="is_approved" value="true" <%= data.is_approved ? 'checked' : '' %>
+                                 class="h-4 w-4 text-[#2B588D] rounded focus:ring-[#2B588D]">
+                          <div>
+                            <div class="font-medium text-gray-800">Approved Company</div>
+                            <div class="text-sm text-gray-500">Company is approved to access all features</div>
+                          </div>
+                        </div>
+                        <div class="px-2 py-1 text-xs font-medium rounded-full <%= data.is_approved ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800' %>">
+                          <%= data.is_approved ? 'Approved' : 'Pending' %>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="mt-8 pt-6 border-t border-gray-200 flex items-center justify-between">
+                  <div>
+                    <a href="/companies" class="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors duration-200">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                      </svg>
+                      <span class="font-medium">Back to Companies</span>
+                    </a>
+                  </div>
+                  <div class="flex items-center space-x-4">
+                    <!-- <button type="reset" class="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                      Reset Form
+                    </button> -->
+                    <button type="submit" class="px-8 py-3 bg-gradient-to-r from-[#2B588D] to-[#5FA8A1] text-white font-semibold rounded-lg hover:opacity-90 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                      <%= mode === 'edit' ? 'Update Company' : 'Create Company' %>
+                      <i class="fas fa-<%= mode === 'edit' ? 'save' : 'plus' %> ml-2"></i>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <!-- Form Footer Note -->
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+              <div class="flex items-center text-sm text-gray-500">
+                <i class="fas fa-info-circle text-[#66BE6E] mr-2"></i>
+                Fields marked with <span class="text-red-500">*</span> are required. Password is auto-generated.
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Password generation function
+    function generatePassword() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+      let password = '';
+      for (let i = 0; i < 12; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return password;
+    }
+
+    // Generate new password
+    function generateNewPassword() {
+      const newPassword = generatePassword();
+      document.getElementById('passwordDisplay').value = newPassword;
+      document.getElementById('passwordInput').value = newPassword;
+      
+      // Show success message
+      Swal.fire({
+        icon: 'success',
+        title: 'New Password Generated',
+        text: 'Password has been updated. Make sure to save the form.',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+      });
+    }
+
+    // Initialize password on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const passwordDisplay = document.getElementById('passwordDisplay');
+      const passwordInput = document.getElementById('passwordInput');
+      
+      // Set initial password if empty (for new companies)
+      if (!passwordDisplay.value || passwordDisplay.value === '') {
+        const initialPassword = generatePassword();
+        passwordDisplay.value = initialPassword;
+        passwordInput.value = initialPassword;
+      }
+
+      // Handle logo preview
+      const logoInput = document.getElementById('logoInput');
+      if (logoInput) {
+        logoInput.addEventListener('change', function(e) {
+          if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+              // Create preview image
+              const previewDiv = document.querySelector('.flex-shrink-0');
+              if (previewDiv) {
+                previewDiv.innerHTML = `<img src="${event.target.result}" alt="Preview" class="h-16 w-16 rounded-lg object-cover border border-gray-300">`;
+              }
+            };
+            reader.readAsDataURL(e.target.files[0]);
+          }
+        });
+      }
+    });
+
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+      const companyCode = document.querySelector('input[name="company_code"]').value;
+      const email = document.querySelector('input[name="email"]').value;
+      
+      // if (!companyCode || !email) {
+      //   e.preventDefault();
+      //   Swal.fire({
+      //     icon: 'error',
+      //     title: 'Missing Required Fields',
+      //     text: 'Please fill in all required fields',
+      //     confirmButtonColor: '#66BE6E'
+      //   });
+      //   return false;
+      // }
+      
+      // Ensure password is set
+      const passwordInput = document.getElementById('passwordInput');
+      if (!passwordInput.value) {
+        e.preventDefault();
+        Swal.fire({
+          icon: 'error',
+          title: 'Password Required',
+          text: 'Please generate a password',
+          confirmButtonColor: '#66BE6E'
+        });
+        return false;
+      }
+    });
+  </script>
+
+  <%- include('partials/script') %>
+</body>
+</html>

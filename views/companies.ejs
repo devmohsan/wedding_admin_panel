@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lezzetli App | Companies</title>
+  <link rel="stylesheet" href="/css/output.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body class="bg-gray-50">
+  <div class="flex h-screen overflow-hidden">
+    <%- include('partials/sidebar') %>
+
+    <div class="relative flex flex-col flex-1 overflow-x-hidden overflow-y-auto">
+      <%- include('partials/header') %>
+
+      <main class="flex-1 p-6">
+        <div class="max-w-7xl mx-auto">
+          <!-- Page Header -->
+          <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h1 class="text-2xl font-bold text-gray-800">Company Management</h1>
+                <p class="text-gray-600 mt-1">Manage all registered companies</p>
+              </div>
+              <a href="/companies/add" 
+                 class="inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-[#2B588D] to-[#5FA8A1] text-white font-medium rounded-lg hover:opacity-90 transition-all duration-200 shadow-md hover:shadow-lg">
+                <i class="fas fa-plus mr-2"></i> Add New Company
+              </a>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+              <div class="bg-white rounded-xl p-4 shadow border border-gray-100">
+                <div class="flex items-center">
+                  <div class="p-2 rounded-lg bg-blue-50 text-blue-600 mr-3">
+                    <i class="fas fa-building"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Total Companies</p>
+                    <p class="text-xl font-semibold text-gray-800"><%= companies.length %></p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="bg-white rounded-xl p-4 shadow border border-gray-100">
+                <div class="flex items-center">
+                  <div class="p-2 rounded-lg bg-green-50 text-green-600 mr-3">
+                    <i class="fas fa-check-circle"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Active Companies</p>
+                    <p class="text-xl font-semibold text-gray-800">
+                      <%= companies.filter(c => c.is_active).length %>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="bg-white rounded-xl p-4 shadow border border-gray-100">
+                <div class="flex items-center">
+                  <div class="p-2 rounded-lg bg-purple-50 text-purple-600 mr-3">
+                    <i class="fas fa-user-check"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Approved Companies</p>
+                    <p class="text-xl font-semibold text-gray-800">
+                      <%= companies.filter(c => c.is_approved).length %>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="bg-white rounded-xl p-4 shadow border border-gray-100">
+                <div class="flex items-center">
+                  <div class="p-2 rounded-lg bg-orange-50 text-orange-600 mr-3">
+                    <i class="fas fa-clock"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-500">Pending Approval</p>
+                    <p class="text-xl font-semibold text-gray-800">
+                      <%= companies.filter(c => !c.is_approved).length %>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Table Card -->
+          <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <!-- Table Header -->
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-lg font-semibold text-gray-800">All Companies</h2>
+                <div class="flex items-center space-x-2 mt-2 sm:mt-0">
+                  <div class="relative">
+                    <input type="text" 
+                           placeholder="Search companies..." 
+                           class="pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#66BE6E] focus:border-transparent w-full sm:w-64"
+                           id="searchInput">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                  </div>
+                  <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#66BE6E] focus:border-transparent"
+                          id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="active">Active Only</option>
+                    <option value="inactive">Inactive Only</option>
+                    <option value="approved">Approved Only</option>
+                    <option value="pending">Pending Approval</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Table Content -->
+            <% if (companies.length === 0) { %>
+            <div class="p-12 text-center">
+              <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                <i class="fas fa-building text-3xl text-gray-400"></i>
+              </div>
+              <h3 class="text-lg font-medium text-gray-700 mb-2">No companies found</h3>
+              <p class="text-gray-500 mb-6">Get started by adding your first company</p>
+              <a href="/companies/add" 
+                 class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-[#66BE6E] to-[#97E8AF] text-white font-medium rounded-lg hover:opacity-90 transition-all duration-200">
+                <i class="fas fa-plus mr-2"></i> Add Company
+              </a>
+            </div>
+            <% } else { %>
+            
+            <!-- Desktop Table -->
+            <div class="overflow-x-auto hidden md:block">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      #
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Company Details
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Contact Info
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Created
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <% const itemsPerPage = 10;
+                     const currentPage = parseInt(query.page) || 1;
+                     const startIndex = (currentPage - 1) * itemsPerPage;
+                     const endIndex = Math.min(startIndex + itemsPerPage, companies.length);
+                     const paginatedItems = companies.slice(startIndex, endIndex);
+                     
+                     paginatedItems.forEach((company, index) => { 
+                  %>
+                  <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <!-- Serial Number -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-600 text-sm font-medium">
+                        <%= startIndex + index + 1 %>
+                      </span>
+                    </td>
+                    
+                    <!-- Company Details -->
+                    <td class="px-6 py-4">
+                      <div class="flex items-center">
+                        <% if (company.logo) { %>
+                        <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-gradient-to-br from-[#66BE6E]/10 to-[#97E8AF]/10 flex items-center justify-center mr-3 overflow-hidden">
+                          <img src="<%= company.logo %>" alt="<%= company.name %>" class="h-full w-full object-cover">
+                        </div>
+                        <% } else { %>
+                        <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-gradient-to-br from-[#66BE6E]/10 to-[#97E8AF]/10 flex items-center justify-center mr-3">
+                          <i class="fas fa-building text-[#66BE6E]"></i>
+                        </div>
+                        <% } %>
+                        <div>
+                          <div class="text-sm font-semibold text-gray-900"><%= company.name %></div>
+                          <div class="text-xs text-gray-500 mt-0.5">
+                            <i class="fas fa-hashtag mr-1"></i> <%= company.company_code %>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    
+                    <!-- Contact Info -->
+                    <td class="px-6 py-4">
+                      <div class="space-y-1">
+                        <div class="text-sm text-gray-900">
+                          <i class="fas fa-envelope text-[#66BE6E] mr-1.5"></i>
+                          <%= company.email %>
+                        </div>
+                        <% if (company.phone) { %>
+                        <div class="text-xs text-gray-600">
+                          <i class="fas fa-phone text-gray-500 mr-1.5"></i>
+                          <%= company.phone %>
+                        </div>
+                        <% } %>
+                      </div>
+                    </td>
+                    
+                    <!-- Status -->
+                    <td class="px-6 py-4">
+                      <div class="flex flex-col space-y-1">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= company.is_active ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200' %> w-fit">
+                          <% if (company.is_active) { %>
+                            <span class="w-2 h-2 bg-green-500 rounded-full mr-1.5"></span>
+                          <% } else { %>
+                            <span class="w-2 h-2 bg-red-500 rounded-full mr-1.5"></span>
+                          <% } %>
+                          <%= company.is_active ? 'Active' : 'Inactive' %>
+                        </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= company.is_approved ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-yellow-100 text-yellow-800 border border-yellow-200' %> w-fit">
+                          <% if (company.is_approved) { %>
+                            <span class="w-2 h-2 bg-blue-500 rounded-full mr-1.5"></span>
+                          <% } else { %>
+                            <span class="w-2 h-2 bg-yellow-500 rounded-full mr-1.5"></span>
+                          <% } %>
+                          <%= company.is_approved ? 'Approved' : 'Pending' %>
+                        </span>
+                      </div>
+                    </td>
+                    
+                    <!-- Created Date -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <% if (company.createdAt) { %>
+                        <%= company.createdAt %>
+                      <% } else { %>
+                        N/A
+                      <% } %>
+                    </td>
+                    
+                    <!-- Actions -->
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div class="flex items-center justify-end space-x-2">
+                        <a href="/companies/edit/<%= company.id %>" 
+                           class="inline-flex items-center p-2 rounded-lg text-[#66BE6E] hover:bg-[#66BE6E]/10 transition-colors duration-200"
+                           title="Edit Company">
+                          <i class="fas fa-edit"></i>
+                        </a>
+                        <button onclick="toggleCompanyStatus('<%= company.id %>', <%= company.is_active %>)"
+                                class="inline-flex items-center p-2 rounded-lg <%= company.is_active ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50' %> transition-colors duration-200"
+                                title="<%= company.is_active ? 'Deactivate' : 'Activate' %>">
+                          <i class="fas fa-<%= company.is_active ? 'ban' : 'check' %>"></i>
+                        </button>
+                        <button onclick="toggleApprovalStatus('<%= company.id %>', <%= company.is_approved %>)"
+                                class="inline-flex items-center p-2 rounded-lg <%= company.is_approved ? 'text-yellow-600 hover:bg-yellow-50' : 'text-blue-600 hover:bg-blue-50' %> transition-colors duration-200"
+                                title="<%= company.is_approved ? 'Unapprove' : 'Approve' %>">
+                          <i class="fas fa-<%= company.is_approved ? 'times' : 'check-circle' %>"></i>
+                        </button>
+                        <button onclick="deleteCompany('<%= company.id %>', '<%= company.name %>')"
+                                class="inline-flex items-center p-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors duration-200"
+                                title="Delete Company">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Mobile Cards View -->
+            <div class="md:hidden space-y-4 p-4">
+              <% paginatedItems.forEach((company, index) => { %>
+              <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                <div class="flex items-start justify-between mb-3">
+                  <div class="flex items-center">
+                    <% if (company.logo) { %>
+                    <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-gradient-to-br from-[#66BE6E]/10 to-[#97E8AF]/10 flex items-center justify-center mr-3 overflow-hidden">
+                      <img src="<%= company.logo %>" alt="<%= company.name %>" class="h-full w-full object-cover">
+                    </div>
+                    <% } else { %>
+                    <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-gradient-to-br from-[#66BE6E]/10 to-[#97E8AF]/10 flex items-center justify-center mr-3">
+                      <i class="fas fa-building text-[#66BE6E]"></i>
+                    </div>
+                    <% } %>
+                    <div>
+                      <div class="font-semibold text-gray-900 text-sm"><%= company.name %></div>
+                      <div class="text-xs text-gray-500 mt-1">
+                        <i class="fas fa-hashtag mr-1"></i> <%= company.company_code %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex flex-col items-end space-y-1">
+                    <span class="px-2 py-0.5 text-xs rounded-full <%= company.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                      <%= company.is_active ? 'Active' : 'Inactive' %>
+                    </span>
+                    <span class="px-2 py-0.5 text-xs rounded-full <%= company.is_approved ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800' %>">
+                      <%= company.is_approved ? 'Approved' : 'Pending' %>
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 text-sm mb-4">
+                  <div class="text-gray-600">
+                    <i class="fas fa-envelope text-[#66BE6E] mr-1"></i>
+                    <%= company.email %>
+                  </div>
+                  <% if (company.phone) { %>
+                  <div class="text-gray-600">
+                    <i class="fas fa-phone text-gray-500 mr-1"></i>
+                    <%= company.phone %>
+                  </div>
+                  <% } %>
+                </div>
+                
+                <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+                  <% if (company.createdAt) { %>
+                  <div class="text-xs text-gray-500">
+                    <i class="fas fa-calendar mr-1"></i> 
+                      <%= company.createdAt %>
+                  </div>
+                  <% } %>
+                  <div class="flex items-center space-x-2">
+                    <a href="/companies/edit/<%= company.id %>" 
+                       class="p-1.5 rounded-lg text-[#66BE6E] hover:bg-[#66BE6E]/10">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <button onclick="toggleCompanyStatus('<%= company.id %>', <%= company.is_active %>)"
+                            class="p-1.5 rounded-lg <%= company.is_active ? 'text-red-600 hover:bg-red-50' : 'text-green-600 hover:bg-green-50' %>">
+                      <i class="fas fa-<%= company.is_active ? 'ban' : 'check' %>"></i>
+                    </button>
+                    <button onclick="toggleApprovalStatus('<%= company.id %>', <%= company.is_approved %>)"
+                            class="p-1.5 rounded-lg <%= company.is_approved ? 'text-yellow-600 hover:bg-yellow-50' : 'text-blue-600 hover:bg-blue-50' %>">
+                      <i class="fas fa-<%= company.is_approved ? 'times' : 'check-circle' %>"></i>
+                    </button>
+                    <button onclick="deleteCompany('<%= company.id %>', '<%= company.name %>')"
+                            class="p-1.5 rounded-lg text-red-600 hover:bg-red-50">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <% }) %>
+            </div>
+
+            <!-- Pagination -->
+            <div class="bg-white px-4 py-4 border-t border-gray-200 sm:px-6">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div class="mb-4 sm:mb-0">
+                  <p class="text-sm text-gray-700">
+                    Showing <span class="font-medium"><%= startIndex + 1 %></span> to 
+                    <span class="font-medium"><%= endIndex %></span> of 
+                    <span class="font-medium"><%= companies.length %></span> companies
+                  </p>
+                </div>
+                
+                <div class="flex items-center">
+                  <% const totalPages = Math.ceil(companies.length / itemsPerPage);
+                     const maxVisiblePages = 5;
+                     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                     
+                     if (endPage - startPage + 1 < maxVisiblePages) {
+                       startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                     }
+                  %>
+                  
+                  <nav class="relative z-0 inline-flex rounded-lg shadow-sm -space-x-px" aria-label="Pagination">
+                    <% if (currentPage > 1) { %>
+                    <a href="/companies?page=<%= currentPage - 1 %>" 
+                       class="relative inline-flex items-center px-3 py-2 rounded-l-lg border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                      <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <% } %>
+                    
+                    <% for (let i = startPage; i <= endPage; i++) { %>
+                    <a href="/companies?page=<%= i %>" 
+                       class="relative inline-flex items-center px-4 py-2 border text-sm font-medium <%= i === currentPage ? 'z-10 bg-[#2B588D] border-[#2B588D] text-white' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50' %>">
+                      <%= i %>
+                    </a>
+                    <% } %>
+                    
+                    <% if (currentPage < totalPages) { %>
+                    <a href="/companies?page=<%= currentPage + 1 %>" 
+                       class="relative inline-flex items-center px-3 py-2 rounded-r-lg border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                      <i class="fas fa-chevron-right"></i>
+                    </a>
+                    <% } %>
+                  </nav>
+                </div>
+              </div>
+            </div>
+            <% } %>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // Delete Company Function
+    function deleteCompany(companyId, companyName) {
+      Swal.fire({
+        title: 'Delete Company?',
+        html: `<div class="text-left">
+                <p class="mb-2">This action will permanently delete the company:</p>
+                <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                  <div class="font-semibold text-red-700">${companyName}</div>
+                </div>
+                <p class="text-sm text-gray-600">This cannot be undone.</p>
+              </div>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#66BE6E',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it',
+        cancelButtonText: 'Cancel',
+        reverseButtons: true,
+        focusCancel: true,
+        customClass: {
+          popup: 'rounded-xl',
+          confirmButton: 'rounded-lg px-5',
+          cancelButton: 'rounded-lg px-5'
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Create form for deletion
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = `/companies/delete/${companyId}`;
+          document.body.appendChild(form);
+          form.submit();
+        }
+      });
+    }
+
+    // Toggle Company Status
+    function toggleCompanyStatus(companyId, isActive) {
+      const action = isActive ? 'deactivate' : 'activate';
+      Swal.fire({
+        title: `${isActive ? 'Deactivate' : 'Activate'} Company?`,
+        text: `Are you sure you want to ${action} this company?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#66BE6E',
+        cancelButtonColor: '#d33',
+        confirmButtonText: `Yes, ${action}`,
+        cancelButtonText: 'Cancel',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = `/companies/toggle-status/${companyId}`;
+
+          document.body.appendChild(form);
+          form.submit();
+        }
+      });
+    }
+
+    // Toggle Approval Status
+    function toggleApprovalStatus(companyId, isApproved) {
+      const action = isApproved ? 'unapprove' : 'approve';
+      Swal.fire({
+        title: `${isApproved ? 'Unapprove' : 'Approve'} Company?`,
+        text: `Are you sure you want to ${action} this company?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#66BE6E',
+        cancelButtonColor: '#d33',
+        confirmButtonText: `Yes, ${action}`,
+        cancelButtonText: 'Cancel',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = `/companies/toggle-approval/${companyId}`;
+          
+          document.body.appendChild(form);
+          form.submit();
+        }
+      });
+    }
+  </script>
+
+  <%- include('partials/script') %>
+</body>
+</html>
